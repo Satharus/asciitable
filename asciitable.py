@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import os
-
+import string
 
 asciitable = {}
 class colours:
@@ -19,7 +19,62 @@ class colours:
 def enableWindowsCMDColor():
     if os.name == 'nt':
             os.system('COLOR') # Magical command that makes colors work in windows cmd.exe
-            
+
+def printCharacterInfo(char):
+     print(colours.textColour + str(asciitable[char]["dec"]) + "\t" + str(asciitable[char]["hex"]) + "\t" + str(asciitable[char]["oct"]) + "\t" + str(asciitable[char]["char"]))
+
+def isHexString(num):
+    if len(num) == 0:
+        return False
+    for a in num:
+        if a not in string.hexdigits:
+            return False
+    return True
+
+def isOctalString(num):
+    if len(num) == 0:
+        return False
+    for a in num:
+        if a not in string.octdigits:
+            return False
+    return True
+
+# Function takes a number string (0x12, 67, o73) and returns the value based on its base
+def parseIntFromString(num):
+    if num.find('x') != -1 and isHexString(num[1::]):     #if hex
+        return int(num[1::], 16)
+    elif num.find('o') != -1 and isOctalString(num[1::]):   #if octal
+        return int(num[1::], 8)
+    elif num.isnumeric(): #if decimal
+        return int(num, 10)
+    else:
+        return -1
+
+def printRanges(arg):
+    print(colours.tableColour + "Dec\tHex\tOct\tChar")
+    ranges = arg.split(',')
+    for a in ranges:
+        if a.find('-') == -1: #if a single number
+            val = parseIntFromString(a)
+            if val == -1:
+                print(colours.RED + "Invalid range(s): {} Pass -h for help".format(a))
+                exit(1)
+            elif 0 <= val <= 127:
+                printCharacterInfo(val)
+            else:
+                print(colours.RED + "Invalid range(s): {} Pass -h for help".format(a))
+                exit(1)
+        elif a.find('-') != -1: #if a range
+            values = a.split('-')
+            lval = parseIntFromString(values[0])
+            rval = parseIntFromString(values[1])
+            if lval > rval or (lval > 127 or 0 > lval) or (rval > 127 or 0 > rval):
+                print(colours.RED + "Invalid range(s): {}-{} Pass -h for help".format(values[0], values[1]))
+                exit(1)
+            for i in range(lval, rval+1):
+                printCharacterInfo(i)
+    exit(0)
+
 def matchColours(arg):
     arg = arg.lower()
     if arg == "magenta":
@@ -42,31 +97,42 @@ def matchColours(arg):
         return "";
 
 def help():
+    a = os.path.basename(sys.argv[0][2::])
     print("""{} - ASCII Table Printer\n
+            usage: {} [ranges] [options]
+            \t   ranges can be comma separated numbers or ranges seperated by -
+            \t   ranges must be right after {}.
+            \t   Use x for hex, and o for octal.
+            \t   Example: {} 2,x41,20-o45\n
             \t-h/--help - Print this help
             \t-nc/--no-colour - Disable Colours
             \t-c/--colours [tablecolour] [textcolour]
             \t\tChoose the colours for the table. (Default: blue green)
-            \t\t(magenta, blue, green, yellow, red, cyan, black, white)""".format(sys.argv[0][2::]))
+            \t\t(magenta, blue, green, yellow, red, cyan, black, white)
+            \t""".format(a,a,a,a))
     exit(1)
 
 def checkForArguments():
+    indexOfOption = 0;
     if len(sys.argv) > 1:
-        if sys.argv[1] == "-h" or sys.argv[1] == "--help":
+        if "-h" in sys.argv or "--help" in sys.argv:
             help()
-        elif sys.argv[1] == "-c" or sys.argv[1] == "--colours":
+        if "-c" in sys.argv or "--colours" in sys.argv:
             if len(sys.argv) > 3:
-                colours.tableColour = matchColours(sys.argv[2])
-                colours.textColour = matchColours(sys.argv[3])
+                indexOfOption=sys.argv.index("-c" if "-c" in sys.argv else "--colours")
+                colours.tableColour = matchColours(sys.argv[indexOfOption+1])
+                colours.textColour = matchColours(sys.argv[indexOfOption+2])
             else:
                 help()
 
-        elif sys.argv[1] == "-nc" or sys.argv[1] == "--no-colour":
+        if "-nc" in sys.argv or "--no-colour" in sys.argv:
+            indexOfOption=sys.argv.index("-nc" if "-nc" in sys.argv else "--no-colour" )
             colours.tableColour = ''
             colours.textColour = ''
-        else:
-            help()
-            exit(1)
+
+        if indexOfOption != 1 and (sys.argv[1].find(',') != -1 or sys.argv[1].find('-') != -1 or
+                sys.argv[1].find('x') or sys.argv[1].find('o') or sys.argv[1].isnumeric()):
+            printRanges(sys.argv[1])
 
 
 def prepareTable():
@@ -129,14 +195,14 @@ def printTable():
     for i in range(32):
         for j in range(4):
             a = asciitable[i+(j*32)]
-            print(colours.textColour + str(a["dec"]) + "\t" + str(a["hex"]) + "\t" + str(a["oct"]) + "\t" + str(a["char"]) + "\t", 
+            print(colours.textColour + str(a["dec"]) + "\t" + str(a["hex"]) + "\t" + str(a["oct"]) + "\t" + str(a["char"]) + "\t",
                     end=colours.tableColour + '|\t')
         print("")
 
 
 def main():
-    checkForArguments()
     prepareTable()
+    checkForArguments()
     enableWindowsCMDColor()
     printTable()
     exit(0)
