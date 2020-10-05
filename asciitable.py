@@ -51,7 +51,7 @@ def parseIntFromString(num):
         return -1
 
 def printRanges(arg):
-    print(colours.tableColour + "Dec\tHex\tOct\tChar")
+    printHeader()
     ranges = arg.split(',')
     for a in ranges:
         if a.find('-') == -1: #if a single number
@@ -97,23 +97,30 @@ def matchColours(arg):
         return "";
 
 def help():
-    a = os.path.basename(sys.argv[0][2::])
+    a = os.path.basename(sys.argv[0])
     print("""{} - ASCII Table Printer\n
             usage: {} [ranges] [options]
             \t   ranges can be comma separated numbers or ranges seperated by -
             \t   ranges must be right after {}.
             \t   Use x for hex, and o for octal.
             \t   Example: {} 2,x41,20-o45\n
+            
+            {} -q type value
+            \t   This is used to query on a row from the ascii table.
+            \t   type can be [c, char] for characters or [n, number] for numbers. 
+            \t   value is the value you  are making the query for.
+            \t   Examples:\t{} -q c 5\t"querying for '5' character"\n\t\t\t\t{} -q n x15\t"querying for 15 in hex"\n\t\t\t\t{} -q n o7\t"querying for 7 in octal"\n\t\t\t\t{} -q n 17\t"querying for 17 in decimal"
+            
             \t-h/--help - Print this help
             \t-nc/--no-colour - Disable Colours
             \t-c/--colours [tablecolour] [textcolour]
             \t\tChoose the colours for the table. (Default: blue green)
             \t\t(magenta, blue, green, yellow, red, cyan, black, white)
-            \t""".format(a,a,a,a))
+            \t""".format(a,a,a,a,a,a,a,a,a,a))
     exit(1)
 
 def checkForArguments():
-    indexOfOption = 0;
+    indexOfOption = 0
     if len(sys.argv) > 1:
         if "-h" in sys.argv or "--help" in sys.argv:
             help()
@@ -129,6 +136,25 @@ def checkForArguments():
             indexOfOption=sys.argv.index("-nc" if "-nc" in sys.argv else "--no-colour" )
             colours.tableColour = ''
             colours.textColour = ''
+
+        if "-q" in sys.argv or "--query" in sys.argv:
+            indexOfOption=sys.argv.index("-q" if "-q" in sys.argv else "--query")
+            queryType = sys.argv[indexOfOption+1]
+            queryValue = sys.argv[indexOfOption+2]
+            queryType = queryType.lower()
+            if queryType in ['c', 'char']:
+                queryAscii(queryValue, queryType="char")
+            elif queryType in ['n' or 'number']:
+                if parseIntFromString(queryValue) != -1:
+                    printHeader()
+                    printCharacterInfo(parseIntFromString(queryValue))
+                else:
+                    print(colours.RED+ "Invalid query value.")
+            else:
+                print(colours.RED+"Invalid query type. Query types are c for chars or n for numbers")
+            exit(0)
+
+
 
         if indexOfOption != 1 and (sys.argv[1].find(',') != -1 or sys.argv[1].find('-') != -1 or
                 sys.argv[1].find('x') or sys.argv[1].find('o') or sys.argv[1].isnumeric()):
@@ -199,11 +225,24 @@ def printTable():
                     end=colours.tableColour + '|\t')
         print("")
 
+def printHeader():
+    print(colours.tableColour + "Dec\tHex\tOct\tChar")
+
+
+def queryAscii(query, queryType="dec"):
+    for i in range(len(asciitable)):
+        if asciitable[i][queryType] == query:
+            printHeader()
+            printCharacterInfo(i)
+            return
+    print(colours.RED + f"Invalid query: {query} is not a valid {queryType}")
+
+    
 
 def main():
     prepareTable()
-    checkForArguments()
     enableWindowsCMDColor()
+    checkForArguments()
     printTable()
     exit(0)
 
