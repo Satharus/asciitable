@@ -39,7 +39,7 @@ def isOctalString(num):
             return False
     return True
 
-# Function takes a number string (0x12, 67, o73) and returns the value based on its base
+# Function takes a number string (x12, 67, o73) and returns the value based on its base
 def parseIntFromString(num):
     if num.find('x') != -1 and isHexString(num[1::]):     #if hex
         return int(num[1::], 16)
@@ -99,20 +99,29 @@ def matchColours(arg):
 def help():
     a = os.path.basename(sys.argv[0])
     print("""{} - ASCII Table Printer\n
-            usage: {} [ranges] [options]
-            \t   ranges can be comma separated numbers or ranges seperated by -
-            \t   ranges must be right after {}.
-            \t   Use x for hex, and o for octal.
-            \t   Example: {} 2,x41,20-o45\n
-            
-            {} -q type value
-            \t   This is used to query on a row from the ascii table.
-            \t   type can be [c, char] for characters or [n, number] for numbers. 
-            \t   value is the value you  are making the query for.
-            \t   Examples:\t{} -q c 5\t"querying for '5' character"\n\t\t\t\t{} -q n x15\t"querying for 15 in hex"\n\t\t\t\t{} -q n o7\t"querying for 7 in octal"\n\t\t\t\t{} -q n 17\t"querying for 17 in decimal"
-            
+            Usage: {} [options]
+
+                Prints the standard ASCII table from (0-127).
+
+            Options:
             \t-h/--help - Print this help
+
+            \t-q/--query [type] [value]
+            \t   Used to query on rows and ranges from the ascii table.
+            \t   type can be c/char for characters or n/number for numbers.
+            \t   value is the value you  are making the query for.
+            \t   values can be comma separated or ranges seperated by a '-'
+            \t   use x for hex, o for octal, and insert characters as is.
+            \t   Examples:
+            \t\t{} -q c @\t\t\t"querying for the character @"
+            \t\t{} -q c A-F,~\t\t"querying for ranges A to F and ~"
+            \t\t{} -q n x15\t\t\t"querying for hex 15"
+            \t\t{} -q n o7\t\t\t"querying for oct 7"
+            \t\t{} -q n 17\t\t\t"querying for 17"
+            \t\t{} -q n 20,x50-x54,o22\t"querying for 20 decimal, ranges 50-54 hex, and octal 22"\n
+
             \t-nc/--no-colour - Disable Colours
+
             \t-c/--colours [tablecolour] [textcolour]
             \t\tChoose the colours for the table. (Default: blue green)
             \t\t(magenta, blue, green, yellow, red, cyan, black, white)
@@ -145,21 +154,10 @@ def checkForArguments():
             if queryType in ['c', 'char']:
                 queryAscii(queryValue, queryType="char")
             elif queryType in ['n' or 'number']:
-                if parseIntFromString(queryValue) != -1:
-                    printHeader()
-                    printCharacterInfo(parseIntFromString(queryValue))
-                else:
-                    print(colours.RED+ "Invalid query value.")
+                printRanges(queryValue)
             else:
                 print(colours.RED+"Invalid query type. Query types are c for chars or n for numbers")
             exit(0)
-
-
-
-        if indexOfOption != 1 and (sys.argv[1].find(',') != -1 or sys.argv[1].find('-') != -1 or
-                sys.argv[1].find('x') or sys.argv[1].find('o') or sys.argv[1].isnumeric()):
-            printRanges(sys.argv[1])
-
 
 def prepareTable():
     for a in range(128):
@@ -230,14 +228,29 @@ def printHeader():
 
 
 def queryAscii(query, queryType="dec"):
-    for i in range(len(asciitable)):
-        if asciitable[i][queryType] == query:
-            printHeader()
-            printCharacterInfo(i)
-            return
-    print(colours.RED + f"Invalid query: {query} is not a valid {queryType}")
+    printHeader()
+    if query == "," or ",,," in query:
+        printCharacterInfo(ord(','))
+    characters = query.split(',')
+    for a in characters:
+        if len(a) == 0:
+            continue
+        elif len(a) == 1:
+            printCharacterInfo(ord(a))
+        elif len(a) == 3:
+            values= a.split('-')
+            lval = ord(values[0])
+            rval = ord(values[1])
+            if lval > rval or (lval > 127 or 0 > lval) or (rval > 127 or 0 > rval):
+                print(colours.RED + "Invalid range(s): {}-{} Pass -h for help".format(values[0], values[1]))
+                exit(1)
+            for i in range(lval, rval+1):
+                printCharacterInfo(i)
+        else:
+            print(colours.RED + f"Invalid query: {a} is not a valid {queryType} or range.")
 
-    
+
+
 
 def main():
     prepareTable()
