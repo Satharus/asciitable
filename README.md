@@ -1,7 +1,7 @@
 # asciitable
 Small Python3 script with no dependencies that prints the ASCII table like asciitable.com.
 
-![demo](./demo.png)
+![demo](./docs/demo.png)
 
 ## Why? 
 
@@ -11,15 +11,26 @@ I got bored of going to [asciitable.com](http://www.asciitable.com/) everytime I
 
 Run it with ```./asciitable.py``` or ```python3 asciitable.py```
 
+You can also give it specific ranges or characters to print like:
+
+![demo2](./docs/demo2.png)
+
 Check the options here:
 ```
 asciitable.py - ASCII Table Printer
+
+            usage: asciitable.py [ranges] [options]
+                   ranges can be comma separated numbers or ranges seperated by -
+                   ranges must be right after asciitable.py.
+                   Use x for hex, and o for octal.
+                   Example: asciitable.py 2,x41,20-o45
 
                 -h/--help - Print this help
                 -nc/--no-colour - Disable Colours
                 -c/--colours [tablecolour] [textcolour]
                         Choose the colours for the table. (Default: blue green)
                         (magenta, blue, green, yellow, red, cyan, black, white)
+
 ```
 
 You can also copy it to `/usr/bin` like:
