@@ -1,5 +1,5 @@
 # asciitable
-Small Python3 script with no dependencies that prints the ASCII table like asciitable.com.
+Python3 script with no dependencies that prints (colourfully :D) the ASCII table like asciitable.com, with quering features.
 
 ![demo](./docs/demo.png)
 
