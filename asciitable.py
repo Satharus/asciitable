@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import sys
+import os
+
 
 asciitable = {}
 class colours:
@@ -130,6 +132,8 @@ def printTable():
 def main():
     checkForArguments()
     prepareTable()
+    if os.name == 'nt':
+        os.system('COLOR') # Magical command that makes colors work in windows cmd.exe
     printTable()
     exit(0)
 
