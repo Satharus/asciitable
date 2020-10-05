@@ -20,13 +20,26 @@ Check the options here:
 ```
 asciitable.py - ASCII Table Printer
 
-            usage: asciitable.py [ranges] [options]
-                   ranges can be comma separated numbers or ranges seperated by -
-                   ranges must be right after asciitable.py.
-                   Use x for hex, and o for octal.
-                   Example: asciitable.py 2,x41,20-o45
+            Usage: asciitable.py [options]
 
+                Prints the standard ASCII table from (0-127).
+
+            Options:
                 -h/--help - Print this help
+                -q/--query [type] [value]
+                   Used to query on rows and ranges from the ascii table.
+                   type can be c/char for characters or n/number for numbers.
+                   value is the value you  are making the query for.
+                   values can be comma separated or ranges seperated by a '-'
+                   use x for hex, o for octal, and insert characters as is.
+                   Examples:
+                        asciitable.py -q c @                    "querying for the character @"
+                        asciitable.py -q c A-F,~                "querying for ranges A to F and ~"
+                        asciitable.py -q n x15                  "querying for hex 15"
+                        asciitable.py -q n o7                   "querying for oct 7"
+                        asciitable.py -q n 17                   "querying for 17"
+                        asciitable.py -q n 20,x50-x54,o22       "querying for 20 decimal, ranges 50-54 hex, and octal 22"
+
                 -nc/--no-colour - Disable Colours
                 -c/--colours [tablecolour] [textcolour]
                         Choose the colours for the table. (Default: blue green)
