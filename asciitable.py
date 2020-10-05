@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import sys
+import os
+
 
 asciitable = {}
 class colours:
@@ -14,6 +16,10 @@ class colours:
     tableColour = BLUE
     textColour = GREEN
 
+def enableWindowsCMDColor():
+    if os.name == 'nt':
+            os.system('COLOR') # Magical command that makes colors work in windows cmd.exe
+            
 def matchColours(arg):
     arg = arg.lower()
     if arg == "magenta":
@@ -127,9 +133,11 @@ def printTable():
                     end=colours.tableColour + '|\t')
         print("")
 
+
 def main():
     checkForArguments()
     prepareTable()
+    enableWindowsCMDColor()
     printTable()
     exit(0)
 
