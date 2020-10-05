@@ -6,6 +6,7 @@ Small Python3 script with no dependencies that prints the ASCII table like ascii
 ## Why? 
 
 I got bored of going to [asciitable.com](http://www.asciitable.com/) everytime I needed to look at a couple of ASCII characters.
+I lso had no idea that you can run `man ascii` on GNU systems and get an ascii table.
 
 ## How to Run
 
