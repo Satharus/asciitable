@@ -151,9 +151,9 @@ def checkForArguments():
             queryType = sys.argv[indexOfOption+1]
             queryValue = sys.argv[indexOfOption+2]
             queryType = queryType.lower()
-            if queryType in ['c', 'char']:
+            if queryType == "c" or queryType == "char":
                 queryAscii(queryValue, queryType="char")
-            elif queryType in ['n' or 'number']:
+            elif queryType == "n" or queryType == "number":
                 printRanges(queryValue)
             else:
                 print(colours.RED+"Invalid query type. Query types are c for chars or n for numbers")
@@ -229,15 +229,21 @@ def printHeader():
 
 def queryAscii(query, queryType="dec"):
     printHeader()
-    if query == "," or ",,," in query:
+    if query == "," or ",,," in query or ",," in query:
         printCharacterInfo(ord(','))
     characters = query.split(',')
+    if len(characters) == 1:
+        a = characters[0]
+        if len(a) == 1:
+            printCharacterInfo(ord(a))
+            return
+
     for a in characters:
         if len(a) == 0:
             continue
         elif len(a) == 1:
             printCharacterInfo(ord(a))
-        elif len(a) == 3:
+        elif len(a) == 3 and "-" in a:
             values= a.split('-')
             lval = ord(values[0])
             rval = ord(values[1])
