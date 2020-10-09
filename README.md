@@ -26,6 +26,7 @@ asciitable.py - ASCII Table Printer
 
             Options:
                 -h/--help - Print this help
+
                 -q/--query [type] [value]
                    Used to query on rows and ranges from the ascii table.
                    type can be c/char for characters or n/number for numbers.
@@ -41,6 +42,9 @@ asciitable.py - ASCII Table Printer
                         asciitable.py -q n 20,x50-x54,o22       "querying for 20 decimal, ranges 50-54 hex, and octal 22"
 
                 -nc/--no-colour - Disable Colours
+
+                -p/--printable - Print printable ASCII characters only (0x20-0x7e)
+
                 -c/--colours [tablecolour] [textcolour]
                         Choose the colours for the table. (Default: blue green)
                         (magenta, blue, green, yellow, red, cyan, black, white)
