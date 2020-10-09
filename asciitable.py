@@ -122,6 +122,8 @@ def help():
 
             \t-nc/--no-colour - Disable Colours
 
+            \t-p/--printable - Print printable ASCII characters only (0x20-0x7e)
+
             \t-c/--colours [tablecolour] [textcolour]
             \t\tChoose the colours for the table. (Default: blue green)
             \t\t(magenta, blue, green, yellow, red, cyan, black, white)
@@ -157,6 +159,10 @@ def checkForArguments():
                 printRanges(queryValue)
             else:
                 print(colours.RED+"Invalid query type. Query types are c for chars or n for numbers")
+            exit(0)
+
+        if "-p" in sys.argv or "--printable":
+            printTable(printable=1)
             exit(0)
 
 def prepareTable():
@@ -208,10 +214,12 @@ def prepareTable():
     asciitable[127]["char"] = "DEL"
 
 
-def printTable():
-    for a in range(3):
-        if a == 0:
+def printTable(printable=0):
+    for a in range(3 if not printable else 2):
+        if a == 0 and not printable:
             print(colours.tableColour + "Dec\tHex\tOct\tChar\t", end ='\t\t|\t')
+        elif a == 0 and printable:
+            print(colours.tableColour + "Dec\tHex\tOct\tChar\t", end ='|\t')
         print("Dec\tHex\tOct\tChar\t", end = '|\t')
 
     print("")
@@ -219,7 +227,11 @@ def printTable():
     for i in range(32):
         for j in range(4):
             a = asciitable[i+(j*32)]
-            print(colours.textColour + str(a["dec"]) + "\t" + str(a["hex"]) + "\t" + str(a["oct"]) + "\t" + str(a["char"]) + "\t",
+            if printable and a["dec"] < 0x7f and a["dec"] >= 0x20:
+                print(colours.textColour + str(a["dec"]) + "\t" + str(a["hex"]) + "\t" + str(a["oct"]) + "\t" + str(a["char"]) + "\t",
+                    end=colours.tableColour + '|\t')
+            elif not printable:
+                print(colours.textColour + str(a["dec"]) + "\t" + str(a["hex"]) + "\t" + str(a["oct"]) + "\t" + str(a["char"]) + "\t",
                     end=colours.tableColour + '|\t')
         print("")
 
